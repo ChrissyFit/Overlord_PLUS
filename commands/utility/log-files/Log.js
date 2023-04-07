@@ -6,8 +6,11 @@ const logSchema = new Schema({
         required: true,
         unique: true,
     },
+    guilds: [{
+        guildID: { type: String, unique: true },
+    }],
     games: [{
-        name: { type: String },
+        name: { type: String, unique: true },
         date: { type: Date, default: Date.now },
     },],
 });
