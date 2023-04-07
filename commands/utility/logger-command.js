@@ -44,16 +44,15 @@ module.exports = {
         const subcommand = interaction.options._subcommand;
         const game = interaction.options.get('game').value;
 
+        const query = {
+            userID: interaction.user.id,
+        };
+        const logger = await Log.findOne(query);
+
         if (subcommand === 'add') {
-            const query = {
-                userID: interaction.author.id,
-            };
-
             try {
-                const logger = await Log.findOne(query);
-
                 if (logger) {
-                    logger.games.push(game);
+                    logger.games.push({ name: game });
 
                     await logger.save().catch((e) => {
                         console.log(e);
@@ -64,7 +63,7 @@ module.exports = {
                 // if (!logger)
                 else {
                     const newLogger = new Log({
-                        userID: interaction.author.id,
+                        userID: interaction.user.id,
                         games: [{ name: game }],
                     });
 
@@ -78,6 +77,12 @@ module.exports = {
         }
 
         if (subcommand === 'remove') {
+
+            logger.games.findIndex(function (g) {
+                if (g.name === game)
+                    console.log(`${g.name}\n ${g.date}`);
+            })
+            console.log(logger.games.length);
             console.log('"logger remove" not implemented.');
             interaction.editReply('Not implemented.');
         }
