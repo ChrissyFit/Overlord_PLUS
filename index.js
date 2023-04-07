@@ -1,4 +1,5 @@
 require('dotenv').config();
+const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const eventHandler = require('./handlers/event-handler.js')
@@ -40,6 +41,15 @@ for (const folder of commandFolders) {
     }
 }
 
-eventHandler(client);
+(async () => {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('Connected to DB');
 
-client.login(process.env.TOKEN);
+        eventHandler(client);
+
+        client.login(process.env.TOKEN);
+    } catch (error) {
+        console.log(error);
+    }
+})();
