@@ -1,4 +1,4 @@
-const { ApplicationCommandOptionType, EmbedBuilder, AttachmentBuilder  } = require('discord.js');
+const { Client, ApplicationCommandOptionType, EmbedBuilder, AttachmentBuilder  } = require('discord.js');
 const path = require('path');
 const fs = require('fs');
 const Log = require('/home/ChrissyFit_PI/Projects/Overlord_Bot/commands/utility/game-log-files/Log.js');
@@ -46,7 +46,7 @@ module.exports = {
                 description: 'List all your logged games.',
                 options: [
                     {
-                        name: 'member',
+                        name: 'mention',
                         description: 'Member in the server.',
                         type: ApplicationCommandOptionType.User,
                         required: false,
@@ -65,11 +65,11 @@ module.exports = {
         const subcommand = interaction.options._subcommand;
         const game = interaction.options.get('game')?.value;
         const inputDate = interaction.options.get('date')?.value;
-        const member = interaction.options.get('member')?.value || interaction.user.id;
+        const mention = interaction.options.get('mention')?.value || interaction.user.id;
 
         // Fetches the user specific query
         const query = {
-            userID: member,
+            userID: mention,
         };
         const logger = await Log.findOne(query);
 
@@ -166,6 +166,7 @@ module.exports = {
                 return;
             }
 
+            const member = interaction.guild.members.cache.get(mention);
             const botAvatarURL = client.user.displayAvatarURL();
 
             listEmbedBase = {
@@ -182,7 +183,7 @@ module.exports = {
                 description: "A list of this user's completed games.",
             
                 thumbnail: {
-                    url: interaction.user.displayAvatarURL(),
+                    url: member.displayAvatarURL(),
                 },
             
                 timestamp: new Date().toISOString(),
@@ -199,7 +200,7 @@ module.exports = {
             };
 
             const listEmbed = new EmbedBuilder(listEmbedBase)
-                .setDescription(`<@!${member}>  Games Completed: ${logger.games.length}`);
+                .setDescription(`<@!${mention}>  Games Completed: ${logger.games.length}`);
 
             for (const g of logger.games) {
                 listEmbed.addFields({
