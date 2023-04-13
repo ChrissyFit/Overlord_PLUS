@@ -166,7 +166,7 @@ module.exports = {
                 return;
             }
 
-            const member = interaction.guild.members.cache.get(mention);
+            const member = interaction.guild?.members.cache.get(mention) || interaction.user;
             const botAvatarURL = client.user.displayAvatarURL();
 
             listEmbedBase = {

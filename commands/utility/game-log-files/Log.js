@@ -15,4 +15,4 @@ const logSchema = new Schema({
     },],
 });
 
-module.exports = model('Log', logSchema);
+module.exports = model('game-logs', logSchema);
