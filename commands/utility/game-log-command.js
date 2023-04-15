@@ -25,6 +25,12 @@ module.exports = {
                         type: ApplicationCommandOptionType.String,
                         required: false,
                     },
+                    {
+                        name: 'completed',
+                        description: 'Enter true or false depending if game is completed (Default is true).',
+                        type: ApplicationCommandOptionType.Boolean,
+                        required: false,
+                    },
                 ],
                 type: 1, // Subcommand type
             },
@@ -66,6 +72,7 @@ module.exports = {
         const game = interaction.options.get('game')?.value;
         const inputDate = interaction.options.get('date')?.value;
         const mention = interaction.options.get('mention')?.value || interaction.user.id;
+        const completed = interaction.options.get('completed')?.value;
 
         // Fetches the user specific query
         const query = {
@@ -90,7 +97,7 @@ module.exports = {
                         interaction.editReply(`**${game}** already exist in your game log!`);
                         return;
                     }
-                    logger.games.push({ name: game, date: inputDate });
+                    logger.games.push({ name: game, date: inputDate, isCompleted: completed });
 
                     if (interaction.guild && guildIndex === -1) {
                         logger.guilds.push({ guildID: interaction.guild.id });
@@ -106,7 +113,7 @@ module.exports = {
                 else {
                     const newLogger = new Log({
                         userID: interaction.user.id,
-                        games: [{ name: game }],
+                        games: [{ name: game, date: inputDate, isCompleted: completed }],
                     });
                     if (interaction.guild) {
                         newLogger.guilds.push({ guildID: interaction.guild.id })
@@ -166,6 +173,12 @@ module.exports = {
                 return;
             }
 
+            let completedCount = 0;
+
+            for (g of logger.games) {
+                if (g.isCompleted) completedCount++;
+            }
+
             const member = interaction.guild?.members.cache.get(mention) || interaction.user;
             const botAvatarURL = client.user.displayAvatarURL();
 
@@ -196,17 +209,65 @@ module.exports = {
                         name: '',
                         value: '',
                     },
+                    {
+                        name: 'Game Title:',
+                        value: ' ',
+                        inline: true,
+                    },
+                    {
+                        name: 'Date Logged:',
+                        value: ' ',
+                        inline: true,
+                    },
+                    {
+                        name: 'Completed:',
+                        value: ' ',
+                        inline: true,
+                    },
                 ],
             };
 
             const listEmbed = new EmbedBuilder(listEmbedBase)
-                .setDescription(`<@!${mention}>  Games Completed: ${logger.games.length}`);
+                .setDescription(`<@!${mention}>  Games Completed: ${completedCount}`);
 
             for (const g of logger.games) {
-                listEmbed.addFields({
-                    name: `• ${g.name}`,
-                    value: `${g.date.toLocaleDateString('en-US')}`,
-                    });
+                if (g.isCompleted) {
+                    listEmbed.addFields(
+                        {
+                            name: ' ',
+                            value: `• ${g.name}`,
+                            inline: true,
+                        },
+                        {
+                            name: ' ',
+                            value: `${g.date.toLocaleDateString('en-US')}`,
+                            inline: true,
+                        },
+                        {
+                            name: ' ',
+                            value: '✅',
+                            inline: true,
+                        },
+                    );
+                } else {
+                    listEmbed.addFields(
+                        {
+                            name: ' ',
+                            value: `• ${g.name}`,
+                            inline: true,
+                        },
+                        {
+                            name: ' ',
+                            value: `${g.date.toLocaleDateString('en-US')}`,
+                            inline: true,
+                        },
+                        {
+                            name: ' ',
+                            value: '❌',
+                            inline: true,
+                        },
+                    );
+                }
             }
 
             listEmbed.addFields({ name: ' ', value: ' ', });

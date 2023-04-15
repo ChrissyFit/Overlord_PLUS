@@ -12,6 +12,7 @@ const logSchema = new Schema({
     games: [{
         name: { type: String },
         date: { type: Date, default: Date.now },
+        isCompleted: { type: Boolean, default: true },
     },],
 });
 
