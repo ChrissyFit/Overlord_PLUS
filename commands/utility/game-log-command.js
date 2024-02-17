@@ -1,7 +1,7 @@
 const { Client, ApplicationCommandOptionType, EmbedBuilder, AttachmentBuilder  } = require('discord.js');
 const path = require('path');
 const fs = require('fs');
-const Log = require('/home/ChrissyFit_PI/Projects/Overlord_Bot/commands/utility/game-log-files/Log.js');
+const Log = require('./game-log-files/Log.js');
 
 module.exports = {
     data: {
